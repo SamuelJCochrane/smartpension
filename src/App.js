@@ -1,25 +1,47 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react"
+import styled from "styled-components"
+import Form from "./components/Form"
+import List from "./components/List"
+import Menu from "./components/Menu"
+import parseFile from "./parseFile"
+
+const StyledApp = styled.div`
+  padding-top: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`
+
+const menuItems = ["Page Views", "Unique Page Views"]
 
 function App() {
+  const [file, setFile] = useState()
+  const [pageViews, setPageViews] = useState()
+  const [uniquePageViews, setUniquePageViews] = useState()
+  const [currentMenuItem, setCurrentMenuItem] = useState(menuItems[0])
+
+  useEffect(() => {
+    file?.text().then((text) => {
+      const { pageViews: pv, uniquePageViews: upv } = parseFile(text)
+      setPageViews(pv)
+      setUniquePageViews(upv)
+    })
+  }, [file])
+
+  const data = currentMenuItem === menuItems[0] ? pageViews : uniquePageViews
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <StyledApp>
+      <Form file={file} setFile={setFile} />
+      <Menu
+        items={menuItems}
+        disabled={!pageViews}
+        onClick={setCurrentMenuItem}
+      />
+      {pageViews && uniquePageViews && <List data={data} />}
+    </StyledApp>
+  )
 }
 
-export default App;
+export default App
